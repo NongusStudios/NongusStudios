@@ -1,29 +1,28 @@
-CC = gcc
-FLAGS = -Wfatal-errors -Wall -pedantic -std=c99 -Ilib/ngsc/include
-LINKER = -lm -lSDL2 -lSDL2_image -lSDL2_ttf lib/ngsc/libngsc.a
+CC = g++
+FLAGS = -O0 -g -Wfatal-errors -Wall -pedantic -std=c++20
 
-SRC  = $(wildcard src/*.c) $(wildcard src/**/*.c) $(wildcard src/**/**/*.c) $(wildcard src/**/**/**/*.c)
+SRC  = $(wildcard src/*.cpp) $(wildcard src/**/*.cpp) $(wildcard src/**/**/*.cpp)
 
-OBJ  = $(SRC:src/%.c=obj/%.o)
+OBJ = $(SRC:%.cpp=%.o)
 
 OUT = out
+CURRENT_EXAMPLE = examples/main.cpp
 
-.PHONY: all clean run libs
+.PHONY: all clean run
 
-all: libs build run
-
-libs:
-	cd lib/ngsc && cmake . && make
+all: build run
 
 build: $(OBJ)
-	$(CC) -o $(OUT) $(OBJ) $(FLAGS) $(LINKER)
+	ar rcs $(LIBCLIAPI) $(OBJ)
+	$(CC) -o $(OUT) $(CURRENT_EXAMPLE) $(FLAGS) $(LIBCLIAPI) $(LINKER)
 
 run:
+	clear
 	./$(OUT)
 
 clean:
-	rm -rf obj/*
+	rm $(OBJ)
 	rm $(OUT)
 
-obj/%.o: src/%.c
+src/%.o: src/%.cpp include/%.hpp
 	$(CC) -o $@ -c $< $(FLAGS)
